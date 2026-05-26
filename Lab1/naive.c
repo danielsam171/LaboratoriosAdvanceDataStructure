@@ -4,7 +4,7 @@ void* build_naive_structure(const int* A, const int n){
     return NULL;
 }
 
-int query_naive_structure(const void* internal_state,const int* A, int i, int j){
+int query_naive_structure(const void* internal_state,const int* A, int i, int j,const int n){
     int index_min = i;
     for (int c = i+1; c <= j;c++){
         if (A[c] < A[index_min]){

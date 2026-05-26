@@ -4,7 +4,7 @@
 
 static int min(int i, int j, const int* A){return (A[i] > A[j])? j : i;}
 
-int find_k(int i, int j) {
+static int find_k(int i, int j) {
     int len = j - i + 1;
     return 31 - __builtin_clz(len);
 }
@@ -43,7 +43,7 @@ void* build_sparce_table_structure(const int* A, const int n){
     
 }
 
-int query_sparce_table_structure(const void* internal_state,const int* A, int i, int j){
+int query_sparce_table_structure(const void* internal_state,const int* A, int i, int j,const int n){
     int ** matriz = (int **)internal_state;
     int k = find_k(i, j);
     int index = min(matriz[i][k],matriz[j-(1<<k)+1][k],A);

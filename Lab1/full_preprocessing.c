@@ -35,7 +35,7 @@ void* build_full_preprocessing_structure(const int* A, const int n){
     
 }
 
-int query_full_preprocessing_structure(const void* internal_state,const int* A, int i, int j){
+int query_full_preprocessing_structure(const void* internal_state,const int* A, int i, int j,const int n){
     int ** matriz = (int **)internal_state;
     return matriz[i][j];
 }
