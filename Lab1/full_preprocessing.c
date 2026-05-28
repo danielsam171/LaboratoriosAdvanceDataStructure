@@ -13,7 +13,12 @@ int** reserve_space_fp(const int n){
     return matriz;
 }  
 
-static int min(int i, int j, const int* A){return (A[i] > A[j])? j : i;}
+static int min(int i, int j, const int* A) {
+    if (A[i] < A[j]) return i;
+    if (A[j] < A[i]) return j;
+    // Si los VALORES son exactamente iguales, desempatamos por el ÍNDICE menor (el de más a la izquierda)
+    return (i < j) ? i : j; 
+}
 
 void* build_full_preprocessing_structure(const int* A, const int n){
     

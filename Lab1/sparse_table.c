@@ -2,7 +2,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-static int min(int i, int j, const int* A){return (A[i] > A[j])? j : i;}
+static int min(int i, int j, const int* A) {
+    if (A[i] < A[j]) return i;
+    if (A[j] < A[i]) return j;
+    // Si los VALORES son exactamente iguales, desempatamos por el ÍNDICE menor (el de más a la izquierda)
+    return (i < j) ? i : j; 
+}
 
 static int find_k(int i, int j) {
     int len = j - i + 1;

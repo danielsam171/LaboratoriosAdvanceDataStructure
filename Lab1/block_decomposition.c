@@ -2,7 +2,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-static int min(int i, int j, const int* A){return (A[i] > A[j])? j : i;}
+static int min(int i, int j, const int* A) {
+    if (A[i] < A[j]) return i;
+    if (A[j] < A[i]) return j;
+    // Si los VALORES son exactamente iguales, desempatamos por el ÍNDICE menor (el de más a la izquierda)
+    return (i < j) ? i : j; 
+}
 
 int techo_raiz_entera(int n) {
     if (n <= 0) return 0;
@@ -69,15 +74,11 @@ int query_block_decomposition_structure(const void* internal_state,const int* A,
             }
         }
         
-        index_min = j;
-        
-        for (int c = j-1; c >= block_size * num_bloque_j && c >= i ; c--){
-            if (A[c] < A[index_min]){
-                index_min = c;
-            }
+        // MI CÓDIGO ACTUALIZADO (Parte 3)
+        int min3 = block_size * num_bloque_j; // Empezamos desde la izquierda del bloque
+        for (int c = min3 + 1; c <= j; c++){  // Vamos hacia la derecha (c++)
+            min3 = min(min3, c, A);           // Usamos la función estricta de desempate
         }
-
-        int min3 = index_min; 
         
         index_min = min(min(min1,min2,A),min3,A);
     }
