@@ -10,29 +10,52 @@ static int min(int i, int j, const int* A) {
     return (i < j) ? i : j; 
 }
 
-static int cartesian_number(const int *A, int start, int len) {
+// CORRECCIÓN 1: Se añadió el parámetro 'b' a la firma
+static int cartesian_number(const int *A, int start, int len, int b) {
     int stack[64], top = 0, num = 0;
+    
     for (int i = 0; i < len; i++) {
-        // Por cada POP, agregamos un bit '1'
         while (top > 0 && A[stack[top-1]] > A[start + i]) {
             top--;
             num = (num << 1) | 1; 
         }
-        // Hacemos el PUSH, y agregamos un bit '0'
         stack[top++] = start + i;
         num = (num << 1) | 0;
     }
+    
+    // Novedad A: Vaciamos la pila obligatoriamente. 
+    // Esto garantiza exactamente 'len' ceros y 'len' unos en la firma.
+    while (top > 0) {
+        top--;
+        num = (num << 1) | 1;
+    }
+    
+    // Novedad B: Padding (Alineación)
+    // Si el bloque es más pequeño que 'b' (el último), alineamos los bits a 
+    // la izquierda para que su firma sea inconfundible en el espacio de 2b bits.
+    num = num << (2 * (b - len));
+    
     return num;
 }
 
-static unsigned char *build_block_table(const int *A, int start, int b) {
+// CORRECCIÓN 2: Se añadió el parámetro 'n' a la firma para vigilar el límite
+static unsigned char *build_block_table(const int *A, int start, int b, int n) {
     unsigned char *tbl = (unsigned char *)malloc(b * b * sizeof(unsigned char));
+    
     for (int i = 0; i < b; i++) {
         tbl[i * b + i] = (unsigned char)i;
         for (int j = i + 1; j < b; j++) {
             int prev = tbl[i * b + (j-1)];
-            tbl[i * b + j] = (A[start + prev] <= A[start + j])
-                             ? (unsigned char)prev : (unsigned char)j;
+            
+            // Novedad C: Evitamos el Out-Of-Bounds
+            if (start + j < n) {
+                tbl[i * b + j] = (A[start + prev] <= A[start + j])
+                                 ? (unsigned char)prev : (unsigned char)j;
+            } else {
+                // Rellenamos con el mínimo actual propagado (dummy state) 
+                // para que la consulta no se rompa ni afecte rangos válidos.
+                tbl[i * b + j] = (unsigned char)prev;
+            }
         }
     }
     return tbl;
@@ -77,11 +100,12 @@ void *build_fischer_heun_structure(const int *A, const int n) {
             if (A[start + k] < A[mi]) mi = start + k;
         state->block_min[bi] = mi;
  
-        int ct = cartesian_number(A, start, len);
+        // Novedad D: Pasamos 'b' a cartesian_number y 'n' a build_block_table
+        int ct = cartesian_number(A, start, len, b);
         state->cartoon[bi] = ct;
  
         if (state->in_block[ct] == NULL)
-            state->in_block[ct] = build_block_table(A, start, b);
+            state->in_block[ct] = build_block_table(A, start, b, n);
     }
  
     for (int i = 0; i < nb; i++)
